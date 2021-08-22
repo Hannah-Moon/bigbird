@@ -1,6 +1,7 @@
-Below is the original README.md file provided by the authors. It is exhaustive. In order to use the model, you need to follow the authors' instructions step-by-step. In addition, here are some instructions provided by me:
+Below is the original README.md file provided by the authors. It is exhaustive. In order to use the model, you need to follow the authors' instructions step-by-step. In addition, here are some instructions provided by me. After you have followed the authors' instructions to install necessary packages, you could refer to my instructions:
 
-1. If you want to evaluate the model on a custom text summarization dataset (e.g. CMUMine), you should go to ```/summarization/evaluate.py```
+1. If you want to evaluate the model on a custom text summarization dataset (e.g. CMUMine), you should go to ```/summarization/eval.ipynb```, and run the cells one-by-one. Please follow the comments I added to each cell. They will help use understand the process. Note that you should prepare your custom dataset whether in the format of ```TFDataset``` or a ```csv``` file. ```TFRecord``` will not work based on my debugging experience.
+2. If you want to finetune the model on a custom text summarization dataset (e.g. CMUMine), you should go to ```/summarization```, and run ```python run_summarization.py``` to be able to finetune and save the model checkpoint to ```tmp/bigb```, which is a temporary folder created at runtime.
 
 ---
 
