@@ -1,3 +1,9 @@
+Below is the original README.md file provided by the authors. It is exhaustive. In order to use the model, you need to follow the authors' instructions step-by-step. In addition, here are some instructions provided by me:
+
+1. If you want to evaluate the model on a custom text summarization dataset (e.g. CMUMine), you should go to ```/summarization/evaluate.py```
+
+---
+
 # Big Bird: Transformers for Longer Sequences
 
 Not an official Google product.
