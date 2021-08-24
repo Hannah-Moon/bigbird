@@ -35,7 +35,10 @@ FLAGS = flags.FLAGS
 ## Required parameters
 
 flags.DEFINE_string(
-    "data_dir", "tfds://scientific_papers/pubmed",
+    #"data_dir", "tfds://scientific_papers/pubmed",
+    #"data_dir", "/tmp/bigb/tfds/aeslc/1.0.0",
+    "data_dir", "../dataset",
+    #"data_dir", "tfds://aeslc",
     "The input data dir. Should contain the TFRecord files. "
     "Can be TF Dataset with prefix tfds://")
 
@@ -50,13 +53,13 @@ flags.DEFINE_string(
     "Initial checkpoint (usually from a pre-trained BigBird model).")
 
 flags.DEFINE_integer(
-    "max_encoder_length", 128,
+    "max_encoder_length", 1024,
     "The maximum total input sequence length after SentencePiece tokenization. "
     "Sequences longer than this will be truncated, and sequences shorter "
     "than this will be padded.")
 
 flags.DEFINE_integer(
-    "max_decoder_length", 128,
+    "max_decoder_length", 256,
     "The maximum total input sequence length after SentencePiece tokenization. "
     "Sequences longer than this will be truncated, and sequences shorter "
     "than this will be padded.")
@@ -78,7 +81,7 @@ flags.DEFINE_bool(
     "Whether to export the model as TF SavedModel.")
 
 flags.DEFINE_integer(
-    "train_batch_size", 8,
+    "train_batch_size", 2,
     "Local batch size for training. "
     "Total batch size will be multiplied by number gpu/tpu cores available.")
 
@@ -96,7 +99,7 @@ flags.DEFINE_float(
     "The initial learning rate for Adam.")
 
 flags.DEFINE_integer(
-    "num_train_steps", 1000,
+    "num_train_steps", 100,
     "Total number of training steps to perform.")
 
 flags.DEFINE_integer(
@@ -135,12 +138,18 @@ def input_fn_builder(data_dir, vocab_model_file, max_encoder_length,
 
   def _decode_record(record):
     """Decodes a record to a TensorFlow example."""
+    """
     name_to_features = {
         "document": tf.io.FixedLenFeature([], tf.string),
         "summary": tf.io.FixedLenFeature([], tf.string),
     }
+    """
+    name_to_features = {
+        "inputs": tf.io.FixedLenFeature([], tf.string),
+        "targets": tf.io.FixedLenFeature([], tf.string),
+    }
     example = tf.io.parse_single_example(record, name_to_features)
-    return example["document"], example["summary"]
+    return example["inputs"], example["targets"]
 
   def _tokenize_example(document, summary):
     tokenizer = tft.SentencepieceTokenizer(
@@ -180,7 +189,7 @@ def input_fn_builder(data_dir, vocab_model_file, max_encoder_length,
                     shuffle_files=is_training, as_supervised=True)
     else:
       input_files = tf.io.gfile.glob(
-          os.path.join(data_dir, "{}.tfrecord*".format(split)))
+          os.path.join(data_dir, "{}.tfrecords-dd".format(split)))
 
       # For training, we want a lot of parallel reading and shuffling.
       # For eval, we want no shuffling and parallel reading doesn't matter.
@@ -204,9 +213,15 @@ def input_fn_builder(data_dir, vocab_model_file, max_encoder_length,
               num_parallel_calls=tf.data.experimental.AUTOTUNE,
               deterministic=is_training)
 
+    print("------printed message------")
+    print(type(d))
+    print(d)
     if is_training:
       d = d.shuffle(buffer_size=10000, reshuffle_each_iteration=True)
       d = d.repeat()
+    print("------printed message------")
+    print(type(d))
+    print(d)
     d = d.padded_batch(batch_size, ([max_encoder_length], [max_decoder_length]),
                        drop_remainder=True)  # For static shape
     return d
